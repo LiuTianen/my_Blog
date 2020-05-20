@@ -1,0 +1,3 @@
+markdown
+django-password-reset
+Pillow
