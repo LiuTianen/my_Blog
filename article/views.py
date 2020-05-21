@@ -8,6 +8,7 @@ from django.contrib.auth.models import User
 from django.core.paginator import Paginator
 from django.db.models import Q
 from comment.models import Comment
+from comment.forms import CommentForm
 # Create your views here.
 
 
@@ -48,6 +49,7 @@ def article_detail(request, id):
     article = ArticlePost.objects.get(id = id)
     # 取出文章评论
     comments =Comment.objects.filter(article=id)
+    comment_form = CommentForm()
 
     article.total_views += 1
     article.save(update_fields=['total_views'])
@@ -62,7 +64,7 @@ def article_detail(request, id):
                                          'markdown.extensions.toc',
                                      ])
     article.body = md.convert(article.body)
-    context = { 'article': article, 'toc': md.toc, 'comments':comments}
+    context = { 'article': article, 'toc': md.toc, 'comments': comments, 'comment_form': comment_form}
     return render(request, 'article/detail.html', context)
 
 # 写文章的视图

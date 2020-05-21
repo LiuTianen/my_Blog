@@ -2,3 +2,5 @@ markdown
 django-password-reset
 Pillow
 django-taggit
+django-ckeditor
+django-imagekit

@@ -22,6 +22,10 @@
     <script src="{% static 'bootstrap/js/bootstrap.min.js' %}"></script>
     <!-- 引入layer.js -->
     <script src = "{% static 'layer/layer.js' %}"></script>
-
+    {% block script %}
+        <script>
+            $(".django-ckeditor-widget").removeAttr('style');
+        </script>
+    {% endblock script %}
 </body>
 </html>
