@@ -1,7 +1,7 @@
 from django.db import models
 from django.urls import reverse
 # Create your models here.
-
+from taggit.managers import TaggableManager
 from django.db import models
 from django.contrib.auth.models import User
 from django.utils import timezone
@@ -31,6 +31,7 @@ class ArticlePost(models.Model):
     # 文章更新时间。参数 auto_now=True 指定每次数据更新时自动写入当前时间
     updated = models.DateTimeField(auto_now=True)
 
+    tags = TaggableManager(blank=True)
     total_views = models.PositiveIntegerField(default=0)
     # 文章栏目的 “一对多” 外键
     column = models.ForeignKey(

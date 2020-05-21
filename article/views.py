@@ -14,32 +14,33 @@ from comment.models import Comment
 def article_list(request):
     search = request.GET.get('search')
     order = request.GET.get('order')
+    column = request.GET.get('column')
+    tag = request.GET.get('tag')
+
+    article_list = ArticlePost.objects.all()
     # 用户搜索逻辑
     if search:
-        if order == 'total_view':
-            # 用Q对象，进行联合搜索
-            article_list = ArticlePost.objects.filter(
+        article_list = article_list.filter(
                 Q(title__icontains=search) |
                 Q(body__icontains=search)
             ).order_by('-total_views')
-        else:
-            article_list = ArticlePost.objects.filter(
-                Q(title__icontains=search) |
-                Q(body__icontains=search)
-            )
     else:
-        # 将search 参数重置为空
         search = ''
-        if order == 'total_views':
-            article_list = ArticlePost.objects.all().order_by('-total_views')
-        else:
-            article_list = ArticlePost.objects.all()
+
+    if column is not  None and column.isdigit():
+        article_list = article_list.filter(column=column)
+
+    if tag and tag != 'None':
+        article_list = article_list.filter(tags__name__in=[tag])
+
+    if order == 'total_views':
+        article_list = article_list.all().order_by('-total_views')
 
     paginator = Paginator(article_list, 3)
     page = request.GET.get('page')
     articles = paginator.get_page(page)
 
-    context = { 'articles': articles, 'order': order, 'search': search}
+    context = {'articles': articles, 'order': order, 'search': search, 'tag':tag}
     return render(request, 'article/list.html', context)
 
 def article_detail(request, id):
@@ -80,6 +81,7 @@ def article_create(request):
             if request.POST['column'] != 'none':
                 new_article.column = ArticleColumn.objects.get(id=request.POST['column'])
             new_article.save()
+            article_post_form.save_m2m()
             # 完成后返回到文章列表
             return redirect("article:article_list")
         # 如果数据不合法，返回错误信息
