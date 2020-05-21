@@ -43,10 +43,7 @@
             <hr>
     {% if user.is_authenticated %}
         <div>
-            <form
-                action="{% url 'comment:post_comment' article.id %}"
-                method="POST"
-            >
+            <form action="{% url 'comment:post_comment' article.id %}" method="POST">
             {% csrf_token %}
                 <div class="form-group">
                     <label for="body">
@@ -54,13 +51,13 @@
                             我也要发言：
                         </strong>
                     </label>
-
                     <div>
                         {{ comment_form.media }}
                         {{ comment_form.body }}
                 </div>
                 <!-- 提交按钮 -->
                 <button type="submit" class="btn btn-primary ">发送</button>
+                </div>
             </form>
         </div>
         <br>
