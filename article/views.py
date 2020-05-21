@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
 from django.shortcuts import render, redirect
 import markdown
@@ -22,6 +23,9 @@ def article_list(request):
 def article_detail(request, id):
 
     article = ArticlePost.objects.get(id = id)
+
+    article.total_views += 1
+    article.save(update_fields=['total_views'])
     # 将markdown语法渲染成html样式
     article.body = markdown.markdown(article.body,
                                      extensions=[
@@ -79,7 +83,7 @@ def article_safe_delete(request, id):
     else:
         return HttpResponse("仅允许post请求")
 
-
+@login_required(login_url='/userprofile/login/')
 def article_update(request, id):
     """
         更新文章的视图函数
@@ -87,9 +91,10 @@ def article_update(request, id):
         GET方法进入初始表单页面
         id： 文章的 id
     """
-
     #获取需要修改的具体文章对象
     article = ArticlePost.objects.get(id=id)
+    if request.user != article.author:
+        return HttpResponse("抱歉，你无权修改这篇文章")
     # 判断用户是否为 POST 提交表单数据
     if request.method == "POST":
         # 将提交的数据赋值到表单实例中
