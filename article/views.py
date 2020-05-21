@@ -6,23 +6,39 @@ from .forms import ArticlePosrForm
 from .models import ArticlePost
 from django.contrib.auth.models import User
 from django.core.paginator import Paginator
+from django.db.models import Q
 # Create your views here.
 
 
 def article_list(request):
-    # 根据GET请求中查询条件
-    # 返回不同排序的对象数组
-    if request.GET.get('order') == 'total_views':
-        article_list = ArticlePost.objects.all().order_by('-total_views')
-        order = 'total_views'
+    search = request.GET.get('search')
+    order = request.GET.get('order')
+    # 用户搜索逻辑
+    if search:
+        if order == 'total_view':
+            # 用Q对象，进行联合搜索
+            article_list = ArticlePost.objects.filter(
+                Q(title__icontains=search) |
+                Q(body__icontains=search)
+            ).order_by('-total_views')
+        else:
+            article_list = ArticlePost.objects.filter(
+                Q(title__icontains=search) |
+                Q(body__icontains=search)
+            )
     else:
-        article_list = ArticlePost.objects.all()
-        order = 'normal'
+        # 将search 参数重置为空
+        search = ''
+        if order == 'total_views':
+            article_list = ArticlePost.objects.all().order_by('-total_views')
+        else:
+            article_list = ArticlePost.objects.all()
 
     paginator = Paginator(article_list, 3)
     page = request.GET.get('page')
     articles = paginator.get_page(page)
-    context = { 'articles': articles, 'order': order}
+
+    context = { 'articles': articles, 'order': order, 'search': search}
     return render(request, 'article/list.html', context)
 
 def article_detail(request, id):
