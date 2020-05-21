@@ -10,14 +10,19 @@ from django.core.paginator import Paginator
 
 
 def article_list(request):
-    article_list = ArticlePost.objects.all()
-    # 每页显示 1 篇文章
-    paginator = Paginator(article_list,1)
-    # 获取 url 中的页码
+    # 根据GET请求中查询条件
+    # 返回不同排序的对象数组
+    if request.GET.get('order') == 'total_views':
+        article_list = ArticlePost.objects.all().order_by('-total_views')
+        order = 'total_views'
+    else:
+        article_list = ArticlePost.objects.all()
+        order = 'normal'
+
+    paginator = Paginator(article_list, 3)
     page = request.GET.get('page')
-    # 将导航对象相应的页码内容返回给 articles
-    article = paginator.get_page(page)
-    context = {'articles':article}
+    articles = paginator.get_page(page)
+    context = { 'articles': articles, 'order': order}
     return render(request, 'article/list.html', context)
 
 def article_detail(request, id):
