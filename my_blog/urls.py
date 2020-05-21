@@ -29,6 +29,9 @@ urlpatterns = [
 
     #密码重置
     path('password-reset/', include('password_reset.urls')),
+
+    #评论
+    path('comment/', include('comment.urls', namespace='comment')),
 ]
 
 urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)
