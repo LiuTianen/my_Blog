@@ -88,13 +88,16 @@ def profile_edit(request, id):
         # 验证修改数据者，是否为用户本人
         if request.user !=user:
             return HttpResponse("你没有权限修改此用户信息。")
-
-        profile_form = ProfileForm(data=request.POST)
+        # 上传的文件保存在 request.FILES 中，通过参数传递给表单类
+        profile_form = ProfileForm(request.POST, request.FILES)
         if profile_form.is_valid():
             # 取得清洗后的合法数据
             profile_cd = profile_form.cleaned_data
             profile.phone = profile_cd['phone']
             profile.bio = profile_cd['bio']
+            # 如果 request.FILES 存在文件，则保存
+            if 'avatar' in request.FILES:
+                profile.avatar = profile_cd["avatar"]
             profile.save()
             # 带参数的 redirect()
             return redirect("userprofile:edit", id=id)
@@ -107,3 +110,4 @@ def profile_edit(request, id):
 
     else:
         return HttpResponse("请使用Get或Post请求数据")
+
