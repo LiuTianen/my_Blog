@@ -65,6 +65,7 @@ class ArticlePost(models.Model):
         processors=[ResizeToFit(width=400)],
         format='JPEG',
         options={'quality': 100},
+        blank=True,
     )
 
     # 内部类 class Meta 用于给 model 定义元数据

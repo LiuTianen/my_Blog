@@ -119,15 +119,19 @@ def article_safe_delete(request, id):
 @login_required(login_url='/userprofile/login/')
 def article_update(request, id):
     """
-        更新文章的视图函数
-        通过POST方法提交表单，更新titile、body字段
-        GET方法进入初始表单页面
-        id： 文章的 id
+    更新文章的视图函数
+    通过POST方法提交表单，更新titile、body字段
+    GET方法进入初始表单页面
+    id： 文章的 id
     """
-    #获取需要修改的具体文章对象
+
+    # 获取需要修改的具体文章对象
     article = ArticlePost.objects.get(id=id)
+
+    # 过滤非作者的用户
     if request.user != article.author:
-        return HttpResponse("抱歉，你无权修改这篇文章")
+        return HttpResponse("抱歉，你无权修改这篇文章。")
+
     # 判断用户是否为 POST 提交表单数据
     if request.method == "POST":
         # 将提交的数据赋值到表单实例中
@@ -137,14 +141,17 @@ def article_update(request, id):
             # 保存新写入的 title、body 数据并保存
             article.title = request.POST['title']
             article.body = request.POST['body']
-            if request.POST['colum'] != 'none':
+
+            if request.POST['column'] != 'none':
+                # 保存文章栏目
                 article.column = ArticleColumn.objects.get(id=request.POST['column'])
             else:
                 article.column = None
 
             if request.FILES.get('avatar'):
                 article.avatar = request.FILES.get('avatar')
-            article.tag.set(*request.POST.get('tags').split(','), clear=True)
+
+            article.tags.set(*request.POST.get('tags').split(','), clear=True)
             article.save()
             # 完成后返回到修改后的文章中。需传入文章的 id 值
             return redirect("article:article_detail", id=id)
@@ -156,13 +163,19 @@ def article_update(request, id):
     else:
         # 创建表单类实例
         article_post_form = ArticlePosrForm()
+
+        # 文章栏目
         columns = ArticleColumn.objects.all()
         # 赋值上下文，将 article 文章对象也传递进去，以便提取旧的内容
-        context = {'article': article, 'article_post_form': article_post_form, 'columns': columns,
-                   'tags': ','.join([x for x in article.tags.names()]),
-                   }
+        context = {
+            'article': article,
+            'article_post_form': article_post_form,
+            'columns': columns,
+            'tags': ','.join([x for x in article.tags.names()]),
+        }
+
         # 将响应返回到模板中
-        return render(request,'article/update.html', context)
+        return render(request, 'article/update.html', context)
 
 
 
