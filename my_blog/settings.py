@@ -44,6 +44,8 @@ INSTALLED_APPS = [
     'taggit',
     'ckeditor',
     'mptt',
+    'notifications',
+    'notice',
 ]
 TIME_ZONE = 'Asia/Shanghai'
 
