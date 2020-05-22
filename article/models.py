@@ -33,6 +33,8 @@ class ArticlePost(models.Model):
     # 文章更新时间。参数 auto_now=True 指定每次数据更新时自动写入当前时间
     updated = models.DateTimeField(auto_now=True)
     avatar = models.ImageField(upload_to='article/%Y%m%d/', blank=True)
+    # 新增点赞数统计
+    likes = models.PositiveIntegerField(default=0)
 
     # 保存时处理图片
     def save(self, *args, **kwargs):
