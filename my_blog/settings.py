@@ -85,9 +85,6 @@ TEMPLATES = [
                 'django.contrib.auth.context_processors.auth',
                 'django.contrib.messages.context_processors.messages',
             ],
-            # 'libraries':{
-            #     'my_customer_tags': ""
-            # }
         },
     },
 ]
@@ -137,7 +134,7 @@ USE_I18N = True
 USE_L10N = True
 
 USE_TZ = True
-
+X_FRAME_OPTIONS = 'SAMEORIGIN'
 
 # Static files (CSS, JavaScript, Images)
 # https://docs.djangoproject.com/en/2.1/howto/static-files/
