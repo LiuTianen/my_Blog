@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     'comment',
     'taggit',
     'ckeditor',
+    'mptt',
 ]
 TIME_ZONE = 'Asia/Shanghai'
 

@@ -1,6 +1,6 @@
 from django.contrib.auth.decorators import login_required
 from django.http import HttpResponse
-from django.shortcuts import render, redirect
+from django.shortcuts import render, redirect, get_object_or_404
 import markdown
 from .forms import ArticlePosrForm
 from .models import ArticlePost, ArticleColumn
@@ -44,27 +44,60 @@ def article_list(request):
     context = {'articles': articles, 'order': order, 'search': search, 'tag':tag}
     return render(request, 'article/list.html', context)
 
+
+# 文章详情
 def article_detail(request, id):
+    # 取出相应的文章
+    # article = ArticlePost.objects.get(id=id)
+    # logger.warning('Something went wrong!')
+    article = get_object_or_404(ArticlePost, id=id)
 
-    article = ArticlePost.objects.get(id = id)
     # 取出文章评论
-    comments =Comment.objects.filter(article=id)
-    comment_form = CommentForm()
+    comments = Comment.objects.filter(article=id)
 
+    # 浏览量 +1
     article.total_views += 1
     article.save(update_fields=['total_views'])
-    # 将markdown语法渲染成html样式
+
+    # 相邻发表文章的快捷导航
+    pre_article = ArticlePost.objects.filter(id__lt=article.id).order_by('-id')
+    next_article = ArticlePost.objects.filter(id__gt=article.id).order_by('id')
+    if pre_article.count() > 0:
+        pre_article = pre_article[0]
+    else:
+        pre_article = None
+
+    if next_article.count() > 0:
+        next_article = next_article[0]
+    else:
+        next_article = None
+
+    # Markdown 语法渲染
     md = markdown.Markdown(
-                                     extensions=[
-                                         # 包含 缩写、表格等常用扩展
-                                         'markdown.extensions.extra',
-                                         # 语法高亮扩展
-                                         'markdown.extensions.codehilite',
-                                         # 目录扩展
-                                         'markdown.extensions.toc',
-                                     ])
+        extensions=[
+            # 包含 缩写、表格等常用扩展
+            'markdown.extensions.extra',
+            # 语法高亮扩展
+            'markdown.extensions.codehilite',
+            # 目录扩展
+            'markdown.extensions.toc',
+        ]
+    )
     article.body = md.convert(article.body)
-    context = { 'article': article, 'toc': md.toc, 'comments': comments, 'comment_form': comment_form}
+
+    # 为评论引入表单
+    comment_form = CommentForm()
+
+    # 需要传递给模板的对象
+    context = {
+        'article': article,
+        'toc': md.toc,
+        'comments': comments,
+        'pre_article': pre_article,
+        'next_article': next_article,
+        'comment_form': comment_form,
+    }
+    # 载入模板，并返回context对象
     return render(request, 'article/detail.html', context)
 
 # 写文章的视图
